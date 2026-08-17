@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trendify - Home</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 0; }
+        header { background-color: #ff3366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-links a { background: white; color: #ff3366; border: none; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-left: 5px; display: inline-block; }
+        .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; max-width: 1200px; margin: auto; }
+        .card { background: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 250px; padding: 15px; text-align: center; }
+        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; }
+        .card h3 { font-size: 18px; margin: 10px 0; color: #333; }
+        .card p { color: #ff3366; font-weight: bold; font-size: 16px; }
+        .btn { display: inline-block; background-color: #ff3366; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; margin-top: 10px; font-weight: bold; width: 80%; border: none; cursor: pointer; }
+        .btn:hover { background-color: #e02456; }
+        .like-dislike { display: flex; justify-content: space-around; margin-top: 10px; }
+        .like-dislike button { background: #eee; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>Trendify</h2>
+        <div class="nav-links" id="navLinks"></div>
+    </header>
+
+    <div class="container" id="productContainer"></div>
+
+    <script>
+        const currentUser = localStorage.getItem('trendifyCurrentUser');
+        const navLinks = document.getElementById('navLinks');
+
+        if (currentUser) {
+            let html = `<span style="margin-right: 15px; font-weight: bold;">Hi, ${currentUser}</span>`;
+            if (currentUser === 'Trendify@gmail.com') {
+                html += `<a href="admin.html">Admin Panel</a>`;
+            }
+            html += `<a href="#" onclick="logout()">Logout</a>`;
+            navLinks.innerHTML = html;
+        } else {
+            navLinks.innerHTML = `
+                <a href="index.html">Login</a>
+                <a href="signup.html">Sign Up</a>
+            `;
+        }
+
+        function logout() {
+            localStorage.removeItem('trendifyCurrentUser');
+            window.location.href = 'index.html';
+        }
+
+        // Load Products
+        function loadProducts() {
+            const container = document.getElementById('productContainer');
+            let products = JSON.parse(localStorage.getItem('trendifyProducts')) || [];
+
+            if (products.length === 0) {
+                container.innerHTML = "<p>No products available right now.</p>";
+                return;
+            }
+
+            container.innerHTML = '';
+            products.forEach((prod, index) => {
+                container.innerHTML += `
+                    <div class="card">
+                        <img src="${prod.image}" alt="${prod.title}">
+                        <h3>${prod.title}</h3>
+                        <p>${prod.price}</p>
+                        <a href="${prod.link}" target="_blank" class="btn">Buy on Meesho</a>
+                        <div class="like-dislike">
+                            <button onclick="react(${index}, 'like')">👍 ${prod.likes || 0}</button>
+                            <button onclick="react(${index}, 'dislike')">👎 ${prod.dislikes || 0}</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function react(index, type) {
+            let products = JSON.parse(localStorage.getItem('trendifyProducts')) || [];
+            if (type === 'like') products[index].likes = (products[index].likes || 0) + 1;
+            if (type === 'dislike') products[index].dislikes = (products[index].dislikes || 0) + 1;
+            
+            localStorage.setItem('trendifyProducts', JSON.stringify(products));
+            loadProducts();
+        }
+
+        loadProducts();
+    </script>
+</body>
+</html>
