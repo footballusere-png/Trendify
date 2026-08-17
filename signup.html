@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trendify - Sign Up</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 300px; text-align: center; }
+        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        .btn { background-color: #ff3366; color: white; padding: 10px; border: none; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .btn:hover { background-color: #e02456; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Create Account</h2>
+        <input type="email" id="email" placeholder="Email" required><br>
+        <input type="password" id="password" placeholder="Password" required><br>
+        <button class="btn" onclick="signup()">Sign Up</button>
+        <p>Already have an account? <a href="index.html">Login</a></p>
+    </div>
+
+    <script>
+        function signup() {
+            const email = document.getElementById('email').value;
+            if(email) {
+                alert('Account Created Successfully! Please Login.');
+                window.location.href = 'index.html';
+            } else {
+                alert('Please fill out all fields!');
+            }
+        }
+    </script>
+</body>
+</html>
