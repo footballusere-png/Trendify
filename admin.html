@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trendify - Admin Panel</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 350px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn { background-color: #ff3366; color: white; padding: 12px; border: none; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .btn:hover { background-color: #e02456; }
+        .back-link { display: block; text-align: center; margin-top: 15px; text-decoration: none; color: #555; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h2>👑 Admin Panel</h2>
+        <form id="productForm">
+            <input type="text" id="pTitle" placeholder="Product Name" required>
+            <input type="text" id="pPrice" placeholder="Price (₹499)" required>
+            <input type="url" id="pImage" placeholder="Image Direct URL" required>
+            <input type="url" id="pLink" placeholder="Meesho Affiliate Link" required>
+            <button type="submit" class="btn">Add Product</button>
+        </form>
+        <a href="home.html" class="back-link">← Back to Home</a>
+    </div>
+
+    <script>
+        const currentUser = localStorage.getItem('trendifyCurrentUser');
+        if (currentUser !== 'Trendify@gmail.com') {
+            alert('Access Denied! Admins only.');
+            window.location.href = 'home.html';
+        }
+
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const product = {
+                title: document.getElementById('pTitle').value,
+                price: document.getElementById('pPrice').value,
+                image: document.getElementById('pImage').value,
+                link: document.getElementById('pLink').value,
+                likes: 0,
+                dislikes: 0
+            };
+
+            let products = JSON.parse(localStorage.getItem('trendifyProducts')) || [];
+            products.push(product);
+            localStorage.setItem('trendifyProducts', JSON.stringify(products));
+
+            alert('Product Added Successfully!');
+            document.getElementById('productForm').reset();
+        });
+    </script>
+</body>
+</html>
