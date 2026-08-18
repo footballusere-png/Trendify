@@ -33,34 +33,41 @@
         .card-price { font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 8px; }
         .card-desc { font-size: 13px; color: #475569; margin-bottom: 12px; flex: 1; }
         .btn-view { background: var(--primary); color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold; width: 100%; text-align: center; box-sizing: border-box; display: inline-block; }
+        
+        #app-content { display: none; } /* ആദ്യം കണ്ടെന്റ് മറച്ചുവെക്കും */
+        #loading-screen { text-align: center; margin-top: 100px; font-size: 18px; color: #64748b; }
     </style>
 </head>
 <body>
 
-    <header>
-        <a href="home.html" class="logo">Trendify</a>
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search products, categories...">
-        </div>
-        <div class="nav-icons">
-            <a href="settings.html">⚙️</a>
-        </div>
-    </header>
+    <div id="loading-screen">Checking authentication...</div>
 
-    <div class="categories">
-        <div class="cat-chip active" onclick="filterCategory('All', event)">All</div>
-        <div class="cat-chip" onclick="filterCategory('Fashion', event)">Fashion</div>
-        <div class="cat-chip" onclick="filterCategory('Electronics', event)">Electronics</div>
-        <div class="cat-chip" onclick="filterCategory('Beauty', event)">Beauty</div>
-        <div class="cat-chip" onclick="filterCategory('Home & Kitchen', event)">Home & Kitchen</div>
-        <div class="cat-chip" onclick="filterCategory('Accessories', event)">Accessories</div>
-        <div class="cat-chip" onclick="filterCategory('Gadgets', event)">Gadgets</div>
-        <div class="cat-chip" onclick="filterCategory('Trending', event)">Trending</div>
-    </div>
+    <div id="app-content">
+        <header>
+            <a href="home.html" class="logo">Trendify</a>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search products, categories...">
+            </div>
+            <div class="nav-icons">
+                <a href="settings.html">⚙️</a>
+            </div>
+        </header>
 
-    <div class="container">
-        <h2>Top Selling Products</h2>
-        <div class="product-grid" id="productGrid">Loading products...</div>
+        <div class="categories">
+            <div class="cat-chip active" onclick="filterCategory('All', event)">All</div>
+            <div class="cat-chip" onclick="filterCategory('Fashion', event)">Fashion</div>
+            <div class="cat-chip" onclick="filterCategory('Electronics', event)">Electronics</div>
+            <div class="cat-chip" onclick="filterCategory('Beauty', event)">Beauty</div>
+            <div class="cat-chip" onclick="filterCategory('Home & Kitchen', event)">Home & Kitchen</div>
+            <div class="cat-chip" onclick="filterCategory('Accessories', event)">Accessories</div>
+            <div class="cat-chip" onclick="filterCategory('Gadgets', event)">Gadgets</div>
+            <div class="cat-chip" onclick="filterCategory('Trending', event)">Trending</div>
+        </div>
+
+        <div class="container">
+            <h2>Top Selling Products</h2>
+            <div class="product-grid" id="productGrid">Loading products...</div>
+        </div>
     </div>
 
     <script type="module">
@@ -85,12 +92,15 @@
 
         let allProducts = [];
 
-        // Safe Authentication & Data Loading
+        // Secure Auth Check without Infinite Loop
         onAuthStateChanged(auth, (user) => {
             if (!user) {
+                // ലോഗിൻ ചെയ്തിട്ടില്ലെങ്കിൽ മാത്രം ലോഗിൻ പേജിലേക്ക് വിടുക
                 window.location.href = "index.html";
             } else {
-                // User is signed in, load products from Firestore
+                // ലോഗിൻ സ്ഥിരീകരിച്ചാൽ മാത്രം ലോഡിങ് മാറ്റി ഹോം പേജ് കാണിക്കുക
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
                 loadProductsRealtime();
             }
         });
