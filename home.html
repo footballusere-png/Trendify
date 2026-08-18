@@ -5,89 +5,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trendify - Home</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 0; }
-        header { background-color: #ff3366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .nav-links a { background: white; color: #ff3366; border: none; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-left: 5px; display: inline-block; }
-        .container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; max-width: 1200px; margin: auto; }
-        .card { background: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 250px; padding: 15px; text-align: center; }
-        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; }
-        .card h3 { font-size: 18px; margin: 10px 0; color: #333; }
-        .card p { color: #ff3366; font-weight: bold; font-size: 16px; }
-        .btn { display: inline-block; background-color: #ff3366; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; margin-top: 10px; font-weight: bold; width: 80%; border: none; cursor: pointer; }
-        .btn:hover { background-color: #e02456; }
-        .like-dislike { display: flex; justify-content: space-around; margin-top: 10px; }
-        .like-dislike button { background: #eee; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        :root { --primary: #ff3366; --bg: #f8fafc; --text: #1e293b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding-bottom: 40px; }
+        header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 22px; font-weight: bold; color: var(--primary); text-decoration: none; }
+        .search-bar { flex: 1; max-width: 500px; margin: 0 20px; }
+        .search-bar input { width: 100%; padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 20px; font-size: 14px; }
+        .nav-icons { display: flex; gap: 15px; align-items: center; }
+        .nav-icons a { text-decoration: none; font-size: 20px; color: #475569; }
+        
+        .categories { display: flex; gap: 10px; overflow-x: auto; padding: 15px 20px; background: white; white-space: nowrap; scrollbar-width: none; }
+        .categories::-webkit-scrollbar { display: none; }
+        .cat-chip { padding: 8px 16px; background: #f1f5f9; border-radius: 20px; font-size: 14px; cursor: pointer; color: #475569; font-weight: 500; transition: 0.2s; }
+        .cat-chip.active, .cat-chip:hover { background: var(--primary); color: white; }
+
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
+        h2 { font-size: 20px; margin-bottom: 15px; color: #334155; }
+        
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; flex-direction: column; position: relative; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-4px); }
+        .card img { width: 100%; height: 200px; object-fit: cover; }
+        .card-body { padding: 15px; display: flex; flex-direction: column; flex: 1; }
+        .card-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; color: #1e293b; }
+        .card-cat { font-size: 12px; color: #64748b; text-transform: uppercase; margin-bottom: 8px; }
+        .card-price { font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 8px; }
+        .card-desc { font-size: 13px; color: #475569; margin-bottom: 12px; flex: 1; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+        .btn-view { background: var(--primary); color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold; }
+        .like-btn { background: none; border: none; font-size: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <header>
-        <h2>Trendify</h2>
-        <div class="nav-links" id="navLinks"></div>
+        <a href="home.html" class="logo">Trendify</a>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search products, categories...">
+        </div>
+        <div class="nav-icons">
+            <a href="settings.html">⚙️</a>
+        </div>
     </header>
 
-    <div class="container" id="productContainer"></div>
+    <div class="categories" id="categoryContainer">
+        <div class="cat-chip active" onclick="filterCategory('All')">All</div>
+        <div class="cat-chip" onclick="filterCategory('Fashion')">Fashion</div>
+        <div class="cat-chip" onclick="filterCategory('Electronics')">Electronics</div>
+        <div class="cat-chip" onclick="filterCategory('Beauty')">Beauty</div>
+        <div class="cat-chip" onclick="filterCategory('Home & Kitchen')">Home & Kitchen</div>
+        <div class="cat-chip" onclick="filterCategory('Accessories')">Accessories</div>
+        <div class="cat-chip" onclick="filterCategory('Gadgets')">Gadgets</div>
+        <div class="cat-chip" onclick="filterCategory('Trending')">Trending</div>
+    </div>
 
+    <div class="container">
+        <h2>Top Selling Products</h2>
+        <div class="product-grid" id="productGrid"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzC-okomVG-pe08RH-JPp0s6NG1BBGIEE",
+            authDomain: "a-one-chat-e3642.firebaseapp.com",
+            projectId: "a-one-chat-e3642",
+            storageBucket: "a-one-chat-e3642.firebasestorage.app",
+            messagingSenderId: "91366490582",
+            appId: "1:91366490582:web:669e8a9bfc54f424a82477"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "index.html";
+            }
+        });
+    </script>
     <script>
-        const currentUser = localStorage.getItem('trendifyCurrentUser');
-        const navLinks = document.getElementById('navLinks');
+        let sampleProducts = JSON.parse(localStorage.getItem('trendifyProducts')) || [
+            { id: 1, name: "Smart Watch Ultra", category: "Electronics", price: "₹899", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30", link: "#", description: "Advanced fitness and health tracking.", rating: "4.5", review_count: 120, top_selling: true },
+            { id: 2, name: "Minimalist Handbag", category: "Fashion", price: "₹499", img: "https://images.unsplash.com/photo-1584917865442-de89df76afd3", link: "#", description: "Elegant daily use leather bag.", rating: "4.7", review_count: 85, top_selling: true },
+            { id: 3, name: "Wireless Earbuds", category: "Gadgets", price: "₹699", img: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df", link: "#", description: "Deep bass and long battery life.", rating: "4.3", review_count: 230, top_selling: false }
+        ];
 
-        if (currentUser) {
-            let html = `<span style="margin-right: 15px; font-weight: bold;">Hi, ${currentUser}</span>`;
-            if (currentUser === 'Trendify@gmail.com') {
-                html += `<a href="admin.html">Admin Panel</a>`;
-            }
-            html += `<a href="#" onclick="logout()">Logout</a>`;
-            navLinks.innerHTML = html;
-        } else {
-            navLinks.innerHTML = `
-                <a href="index.html">Login</a>
-                <a href="signup.html">Sign Up</a>
-            `;
-        }
+        function displayProducts(productsToDisplay) {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = "";
+            
+            // Sort to show top selling first
+            productsToDisplay.sort((a, b) => (b.top_selling === true) - (a.top_selling === true));
 
-        function logout() {
-            localStorage.removeItem('trendifyCurrentUser');
-            window.location.href = 'index.html';
-        }
-
-        // Load Products
-        function loadProducts() {
-            const container = document.getElementById('productContainer');
-            let products = JSON.parse(localStorage.getItem('trendifyProducts')) || [];
-
-            if (products.length === 0) {
-                container.innerHTML = "<p>No products available right now.</p>";
-                return;
-            }
-
-            container.innerHTML = '';
-            products.forEach((prod, index) => {
-                container.innerHTML += `
+            productsToDisplay.forEach((prod, index) => {
+                grid.innerHTML += `
                     <div class="card">
-                        <img src="${prod.image}" alt="${prod.title}">
-                        <h3>${prod.title}</h3>
-                        <p>${prod.price}</p>
-                        <a href="${prod.link}" target="_blank" class="btn">Buy on Meesho</a>
-                        <div class="like-dislike">
-                            <button onclick="react(${index}, 'like')">👍 ${prod.likes || 0}</button>
-                            <button onclick="react(${index}, 'dislike')">👎 ${prod.dislikes || 0}</button>
+                        <img src="${prod.img}" alt="${prod.name}">
+                        <div class="card-body">
+                            <span class="card-cat">${prod.category}</span>
+                            <div class="card-title">${prod.name}</div>
+                            <div class="card-price">${prod.price}</div>
+                            <div class="card-desc">${prod.description}</div>
+                            <div style="font-size:12px; color:#f59e0b; margin-bottom:10px;">⭐ ${prod.rating} (${prod.review_count} reviews)</div>
+                            <div class="card-footer">
+                                <a href="${prod.link}" target="_blank" class="btn-view">View Product</a>
+                                <button class="like-btn" onclick="toggleLike(${index})">🤍</button>
+                            </div>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function react(index, type) {
-            let products = JSON.parse(localStorage.getItem('trendifyProducts')) || [];
-            if (type === 'like') products[index].likes = (products[index].likes || 0) + 1;
-            if (type === 'dislike') products[index].dislikes = (products[index].dislikes || 0) + 1;
-            
-            localStorage.setItem('trendifyProducts', JSON.stringify(products));
-            loadProducts();
+        function filterCategory(category) {
+            document.querySelectorAll('.cat-chip').forEach(chip => chip.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (category === 'All') {
+                displayProducts(sampleProducts);
+            } else {
+                const filtered = sampleProducts.filter(p => p.category.toLowerCase() === category.toLowerCase());
+                displayProducts(filtered);
+            }
         }
 
-        loadProducts();
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = sampleProducts.filter(p => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query));
+            displayProducts(filtered);
+        });
+
+        displayProducts(sampleProducts);
     </script>
 </body>
 </html>
