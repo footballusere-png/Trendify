@@ -3,55 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trendify - Admin Panel</title>
+    <title>Trendify - Admin Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 350px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn { background-color: #ff3366; color: white; padding: 12px; border: none; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        :root { --primary: #ff3366; --bg: #f8fafc; --text: #1e293b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        h2 { color: var(--primary); text-align: center; margin-bottom: 20px; }
+        .input-group { margin-bottom: 12px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
+        .btn { background-color: var(--primary); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn:hover { background-color: #e02456; }
-        .back-link { display: block; text-align: center; margin-top: 15px; text-decoration: none; color: #555; }
     </style>
 </head>
 <body>
 
-    <div class="box">
-        <h2>👑 Admin Panel</h2>
-        <form id="productForm">
-            <input type="text" id="pTitle" placeholder="Product Name" required>
-            <input type="text" id="pPrice" placeholder="Price (₹499)" required>
-            <input type="url" id="pImage" placeholder="Image Direct URL" required>
-            <input type="url" id="pLink" placeholder="Meesho Affiliate Link" required>
+    <div class="container">
+        <h2>👑 Admin Dashboard</h2>
+        <form id="adminForm">
+            <div class="input-group"><input type="text" id="name" placeholder="Product Name" required></div>
+            <div class="input-group">
+                <select id="category">
+                    <option value="Fashion">Fashion</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Beauty">Beauty</option>
+                    <option value="Home & Kitchen">Home & Kitchen</option>
+                    <option value="Accessories">Accessories</option>
+                    <option value="Gadgets">Gadgets</option>
+                    <option value="Trending">Trending</option>
+                </select>
+            </div>
+            <div class="input-group"><input type="text" id="price" placeholder="Price (₹499)" required></div>
+            <div class="input-group"><input type="url" id="img" placeholder="Image Link" required></div>
+            <div class="input-group"><input type="url" id="link" placeholder="Product Affiliate Link" required></div>
+            <div class="input-group"><input type="text" id="description" placeholder="Description" required></div>
+            <div class="input-group"><label><input type="checkbox" id="top_selling"> Top Selling</label></div>
             <button type="submit" class="btn">Add Product</button>
         </form>
-        <a href="home.html" class="back-link">← Back to Home</a>
+        <br><a href="home.html">← Back to Home</a>
     </div>
 
-    <script>
-        const currentUser = localStorage.getItem('trendifyCurrentUser');
-        if (currentUser !== 'Trendify@gmail.com') {
-            alert('Access Denied! Admins only.');
-            window.location.href = 'home.html';
-        }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        document.getElementById('productForm').addEventListener('submit', function(e) {
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzC-okomVG-pe08RH-JPp0s6NG1BBGIEE",
+            authDomain: "a-one-chat-e3642.firebaseapp.com",
+            projectId: "a-one-chat-e3642",
+            storageBucket: "a-one-chat-e3642.firebasestorage.app",
+            messagingSenderId: "91366490582",
+            appId: "1:91366490582:web:669e8a9bfc54f424a82477"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user || user.email !== "Trendify@gmail.com") {
+                alert("Access Denied! Admins only.");
+                window.location.href = "home.html";
+            }
+        });
+
+        document.getElementById('adminForm').addEventListener('submit', (e) => {
             e.preventDefault();
-
             const product = {
-                title: document.getElementById('pTitle').value,
-                price: document.getElementById('pPrice').value,
-                image: document.getElementById('pImage').value,
-                link: document.getElementById('pLink').value,
-                likes: 0,
-                dislikes: 0
+                name: document.getElementById('name').value,
+                category: document.getElementById('category').value,
+                price: document.getElementById('price').value,
+                img: document.getElementById('img').value,
+                link: document.getElementById('link').value,
+                description: document.getElementById('description').value,
+                rating: "4.5",
+                review_count: 50,
+                top_selling: document.getElementById('top_selling').checked
             };
 
             let products = JSON.parse(localStorage.getItem('trendifyProducts')) || [];
             products.push(product);
             localStorage.setItem('trendifyProducts', JSON.stringify(products));
-
-            alert('Product Added Successfully!');
-            document.getElementById('productForm').reset();
+            alert("Product Added Successfully!");
+            document.getElementById('adminForm').reset();
         });
     </script>
 </body>
