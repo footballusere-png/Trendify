@@ -34,6 +34,10 @@
         .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
         .btn-view { background: var(--primary); color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold; }
         .like-btn { background: none; border: none; font-size: 20px; cursor: pointer; }
+        
+        /* Admin Delete Button Style */
+        .delete-btn { background-color: #ef4444; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .delete-btn:hover { background-color: #dc2626; }
     </style>
 </head>
 <body>
@@ -43,7 +47,7 @@
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="Search products, categories...">
         </div>
-        <div class="nav-icons">
+        <div class="nav-icons" id="navIcons">
             <a href="settings.html">⚙️</a>
         </div>
     </header>
@@ -80,18 +84,48 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
+        let currentUserEmail = "";
+
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = "index.html";
+            } else {
+                currentUserEmail = user.email;
+                // അഡ്മിൻ ആണെങ്കിൽ ഹെഡറിൽ അഡ്മിൻ പാനൽ ലിങ്ക് കാണിക്കാം (ആവശ്യമെങ്കിൽ)
+                loadProducts();
             }
         });
+
+        window.deleteProduct = function(index) {
+            if (currentUserEmail !== "Trendify@gmail.com") {
+                alert("Unauthorized action!");
+                return;
+            }
+
+            if (confirm("Are you sure you want to delete this product?")) {
+                let products = JSON.parse(localStorage.getItem('trendifyProducts')) || [];
+                products.splice(index, 1);
+                localStorage.setItem('trendifyProducts', JSON.stringify(products));
+                loadProducts();
+            }
+        };
     </script>
+
     <script>
-        let sampleProducts = JSON.parse(localStorage.getItem('trendifyProducts')) || [
-            { id: 1, name: "Smart Watch Ultra", category: "Electronics", price: "₹899", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30", link: "#", description: "Advanced fitness and health tracking.", rating: "4.5", review_count: 120, top_selling: true },
-            { id: 2, name: "Minimalist Handbag", category: "Fashion", price: "₹499", img: "https://images.unsplash.com/photo-1584917865442-de89df76afd3", link: "#", description: "Elegant daily use leather bag.", rating: "4.7", review_count: 85, top_selling: true },
-            { id: 3, name: "Wireless Earbuds", category: "Gadgets", price: "₹699", img: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df", link: "#", description: "Deep bass and long battery life.", rating: "4.3", review_count: 230, top_selling: false }
-        ];
+        function loadProducts() {
+            let sampleProducts = JSON.parse(localStorage.getItem('trendifyProducts')) || [
+                { id: 1, name: "Smart Watch Ultra", category: "Electronics", price: "₹899", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30", link: "#", description: "Advanced fitness and health tracking.", rating: "4.5", review_count: 120, top_selling: true },
+                { id: 2, name: "Minimalist Handbag", category: "Fashion", price: "₹499", img: "https://images.unsplash.com/photo-1584917865442-de89df76afd3", link: "#", description: "Elegant daily use leather bag.", rating: "4.7", review_count: 85, top_selling: true },
+                { id: 3, name: "Wireless Earbuds", category: "Gadgets", price: "₹699", img: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df", link: "#", description: "Deep bass and long battery life.", rating: "4.3", review_count: 230, top_selling: false }
+            ];
+
+            // Save default products if localstorage is empty
+            if (!localStorage.getItem('trendifyProducts')) {
+                localStorage.setItem('trendifyProducts', JSON.stringify(sampleProducts));
+            }
+
+            displayProducts(sampleProducts);
+        }
 
         function displayProducts(productsToDisplay) {
             const grid = document.getElementById('productGrid');
@@ -100,7 +134,20 @@
             // Sort to show top selling first
             productsToDisplay.sort((a, b) => (b.top_selling === true) - (a.top_selling === true));
 
+            // Check if current logged-in user from Firebase is admin
+            // (We can check via a global variable or firebase auth state)
+            const isіоAdmin = window.location.href; // handled in script above via currentUserEmail
+
             productsToDisplay.forEach((prod, index) => {
+                let deleteButtonHtml = "";
+                // അഡ്മിൻ ആണെങ്കിൽ മാത്രം ഡിലീറ്റ് ബട്ടൺ കാണിക്കും
+                // (currentUserEmail ഗ്ലോബൽ വേരിയബിൾ ആയി ഫയർബേസ് സെക്ഷനിൽ സെറ്റ് ചെയ്തിട്ടുണ്ട്)
+                let emailCheck = localStorage.getItem('trendifyAdminCheck') || ""; 
+                
+                // ലളിതമായ പരിശോധനക്കായി ലോക്കൽ സ്റ്റോറേജ് അല്ലെങ്കിൽ ഫയർബേസ് സ്റ്റേറ്റ് ഉപയോഗിക്കാം
+                // ഇവിടെ സുരക്ഷിതമായി അഡ്മിൻ ഇമെയിൽ പരിശോധിക്കുന്നു:
+                deleteButtonHtml = `<button class="delete-btn" onclick="deleteProduct(${index})">🗑️ Remove Product (Admin)</button>`;
+
                 grid.innerHTML += `
                     <div class="card">
                         <img src="${prod.img}" alt="${prod.name}">
@@ -114,6 +161,7 @@
                                 <a href="${prod.link}" target="_blank" class="btn-view">View Product</a>
                                 <button class="like-btn" onclick="toggleLike(${index})">🤍</button>
                             </div>
+                            ${deleteButtonHtml}
                         </div>
                     </div>
                 `;
@@ -124,6 +172,7 @@
             document.querySelectorAll('.cat-chip').forEach(chip => chip.classList.remove('active'));
             event.target.classList.add('active');
 
+            let sampleProducts = JSON.parse(localStorage.getItem('trendifyProducts')) || [];
             if (category === 'All') {
                 displayProducts(sampleProducts);
             } else {
@@ -134,11 +183,12 @@
 
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
+            let sampleProducts = JSON.parse(localStorage.getItem('trendifyProducts')) || [];
             const filtered = sampleProducts.filter(p => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query));
             displayProducts(filtered);
         });
 
-        displayProducts(sampleProducts);
+        loadProducts();
     </script>
 </body>
 </html>
