@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,7 +35,7 @@
         .card-desc { font-size: 13px; color: #475569; margin-bottom: 12px; flex: 1; }
         .btn-view { background: var(--primary); color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold; width: 100%; text-align: center; box-sizing: border-box; display: inline-block; }
         
-        #app-content { display: none; } /* ആദ്യം കണ്ടെന്റ് മറച്ചുവെക്കും */
+        #app-content { display: none; }
         #loading-screen { text-align: center; margin-top: 100px; font-size: 18px; color: #64748b; }
     </style>
 </head>
@@ -92,13 +93,10 @@
 
         let allProducts = [];
 
-        // Secure Auth Check without Infinite Loop
         onAuthStateChanged(auth, (user) => {
             if (!user) {
-                // ലോഗിൻ ചെയ്തിട്ടില്ലെങ്കിൽ മാത്രം ലോഗിൻ പേജിലേക്ക് വിടുക
                 window.location.href = "index.html";
             } else {
-                // ലോഗിൻ സ്ഥിരീകരിച്ചാൽ മാത്രം ലോഡിങ് മാറ്റി ഹോം പേജ് കാണിക്കുക
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('app-content').style.display = 'block';
                 loadProductsRealtime();
@@ -112,9 +110,6 @@
                     allProducts.push({ id: doc.id, ...doc.data() });
                 });
                 displayProducts(allProducts);
-            }, (error) => {
-                console.error("Error loading products: ", error);
-                document.getElementById('productGrid').innerHTML = "<p style='color:red;'>Error loading products from database.</p>";
             });
         }
 
