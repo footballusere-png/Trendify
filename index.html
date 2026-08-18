@@ -5,33 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trendify - Login</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 300px; text-align: center; }
-        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-        .btn { background-color: #ff3366; color: white; padding: 10px; border: none; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        :root { --primary: #ff3366; --bg: #f8fafc; --text: #1e293b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .auth-container { background: white; padding: 40px 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; }
+        h1 { color: var(--primary); margin-bottom: 5px; font-size: 28px; }
+        p.subtitle { color: #64748b; margin-bottom: 25px; font-size: 14px; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 600; color: #475569; }
+        input[type="email"], input[type="password"] { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box; transition: 0.2s; }
+        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(255, 51, 102, 0.1); }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; font-size: 13px; margin: 15px 0; text-align: left; color: #475569; }
+        .btn { background-color: var(--primary); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 10px; }
         .btn:hover { background-color: #e02456; }
+        .links { margin-top: 20px; font-size: 13px; color: #64748b; }
+        .links a { color: var(--primary); text-decoration: none; font-weight: 600; }
+        .links a:hover { text-decoration: underline; }
+        .error-msg { color: #ef4444; font-size: 13px; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>Login to Trendify</h2>
-        <input type="email" id="email" placeholder="Email (Admin: Trendify@gmail.com)" required><br>
-        <input type="password" id="password" placeholder="Password" required><br>
-        <button class="btn" onclick="login()">Login</button>
-        <p>New here? <a href="signup.html">Sign Up</a></p>
+
+    <div class="auth-container">
+        <h1>Trendify</h1>
+        <p class="subtitle">Welcome back! Please login to your account.</p>
+        
+        <form id="loginForm">
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="name@example.com" required>
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="termsCheck" required>
+                <label for="termsCheck" style="margin:0; font-weight:normal;">I agree to <a href="terms.html">Terms</a> & <a href="policy.html">Privacy Policy</a></label>
+            </div>
+
+            <button type="submit" class="btn">Login</button>
+            <p id="errorMsg" class="error-msg"></p>
+        </form>
+
+        <div class="links">
+            <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
+        </div>
     </div>
 
-    <script>
-        function login() {
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzC-okomVG-pe08RH-JPp0s6NG1BBGIEE",
+            authDomain: "a-one-chat-e3642.firebaseapp.com",
+            projectId: "a-one-chat-e3642",
+            storageBucket: "a-one-chat-e3642.firebasestorage.app",
+            messagingSenderId: "91366490582",
+            appId: "1:91366490582:web:669e8a9bfc54f424a82477"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             const email = document.getElementById('email').value;
-            if(email) {
-                localStorage.setItem('trendifyCurrentUser', email);
-                alert('Login Successful!');
-                window.location.href = 'home.html'; // ലോഗിൻ ചെയ്താൽ നേരെ home.html-ലേക്ക് പോകും
-            } else {
-                alert('Please enter email!');
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = 'home.html';
+            } catch (error) {
+                errorMsg.innerText = error.message;
             }
-        }
+        });
     </script>
 </body>
 </html>
