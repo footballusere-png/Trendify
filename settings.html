@@ -5,71 +5,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trendify - Settings</title>
     <link rel="icon" type="image/png" href="logo.png">
-
     <style>
         :root { --primary: #ff3366; --bg: #f8fafc; --text: #1e293b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        h2 { color: var(--primary); margin-bottom: 20px; text-align: center; }
-        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f5f9; text-decoration: none; color: #334155; font-weight: 500; font-size: 15px; cursor: pointer; }
-        .menu-item:hover { color: var(--primary); }
-        .btn-logout { background-color: #ef4444; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        .btn-logout:hover { background-color: #dc2626; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        h2 { color: var(--primary); text-align: center; margin-bottom: 20px; }
+        .info-box { background: #f1f5f9; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
+        .btn { background-color: var(--primary); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 14px; }
+        .btn-secondary { background-color: #475569; }
+        .btn:hover { opacity: 0.9; }
+
+        /* Chat Modal Styling */
+        #chatModal { display: none; position: fixed; bottom: 20px; right: 20px; width: 320px; background: white; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 1000; overflow: hidden; }
+        .chat-header { background: var(--primary); color: white; padding: 12px; display: flex; justify-content: space-between; font-weight: bold; }
+        .chat-body { height: 250px; overflow-y: auto; padding: 10px; background: #f8fafc; display: flex; flex-direction: column; gap: 8px; }
+        .chat-footer { display: flex; padding: 10px; background: white; border-top: 1px solid #e2e8f0; }
+        .chat-footer input { flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; }
+        .chat-footer button { background: var(--primary); color: white; border: none; padding: 8px 12px; border-radius: 6px; margin-left: 5px; cursor: pointer; }
+        .msg { padding: 8px 12px; border-radius: 8px; font-size: 13px; max-width: 80%; }
+        .msg.user { background: #fee2e2; align-self: flex-end; color: #991b1b; }
+        .msg.admin { background: #e2e8f0; align-self: flex-start; color: #1e293b; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Settings & Account</h2>
-        <div id="userInfo" style="margin-bottom: 20px; font-weight: bold; color: #64748b; text-align: center;"></div>
+        <h2>⚙️ User Settings</h2>
+        
+        <!-- യൂസർ ഐഡിയും ഇമെയിലും കാണിക്കുന്ന ഭാഗം -->
+        <div class="info-box">
+            <p><b>Email:</b> <span id="userEmail">Loading...</span></p>
+            <p style="margin-bottom:0;"><b>User ID:</b> <span id="userId" style="font-family: monospace; color: #64748b;">Loading...</span></p>
+        </div>
 
-        <a href="home.html" class="menu-item">🏠 Back to Home</a>
-        <a class="menu-item" onclick="checkAdminPassword()">👑 Admin Panel </a>
-        <a href="https://www.instagram.com/trendify.dm?igsh=ZmQzYXZtbzdocGps" target="_blank" class="menu-item">📸 Contact via Instagram</a>
-        <a href="terms.html" class="menu-item">📄 Terms & Privacy Policy</a>
-
-        <button class="btn-logout" id="logoutBtn">Logout</button>
+        <!-- അഡ്മിനുമായി കോണ്ടാക്ട് ചെയ്യാൻ ചാറ്റ് ബോക്സ് തുറക്കാനുള്ള ബട്ടൺ -->
+        <button class="btn" onclick="openChatBox()">💬 Contact Admin (Live Chat)</button>
+        <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        <br><br><a href="home.html" style="color:var(--primary); text-decoration:none; font-weight:bold;">← Back to Home</a>
     </div>
 
-    <script>
-        function checkAdminPassword() {
-            let pwd = prompt("Enter Admin Password:");
-            if (pwd === "risham0043") {
-                window.location.href = "admin.html";
-            } else if (pwd !== null) {
-                alert("Incorrect Password!");
-            }
-        }
-    </script>
+    <!-- ചാറ്റ് ബോക്സ് Popup -->
+    <div id="chatModal">
+        <div class="chat-header">
+            <span>Admin Support Chat</span>
+            <span style="cursor:pointer;" onclick="closeChatBox()">✕</span>
+        </div>
+        <div class="chat-body" id="chatMessages">
+            <div class="msg admin">Hello! Send your message here, Admin will reply soon.</div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDzC-okomVG-pe08RH-JPp0s6NG1BBGIEE",
-            authDomain: "a-one-chat-e3642.firebaseapp.com",
-            projectId: "a-one-chat-e3642",
-            storageBucket: "a-one-chat-e3642.firebasestorage.app",
-            messagingSenderId: "91366490582",
-            appId: "1:91366490582:web:669e8a9bfc54f424a82477"
+            apiKey: "AIzaSyAg24IukX9zNM93Qwqoon-L91kt4Zw513o",
+            authDomain: "efootball-market-9e735.firebaseapp.com",
+            databaseURL: "https://efootball-market-9e735-default-rtdb.firebaseio.com",
+            projectId: "efootball-market-9e735",
+            storageBucket: "efootball-market-9e735.firebasestorage.app",
+            messagingSenderId: "920950277938",
+            appId: "1:920950277938:web:3ec5986057b269ec7bb92b",
+            measurementId: "G-EM7J5JVF10"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
 
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('userInfo').innerText = `Logged in as: ${user.email}`;
-            } else {
+            if (!user) {
                 window.location.href = "index.html";
+            } else {
+                currentUser = user;
+                document.getElementById('userEmail').innerText = user.email;
+                document.getElementById('userId').innerText = user.uid;
+                loadUserMessages(user.uid);
             }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
+        window.openChatBox = function() {
+            document.getElementById('chatModal').style.display = 'block';
+        }
+
+        window.closeChatBox = function() {
+            document.getElementById('chatModal').style.display = 'none';
+        }
+
+        window.sendMessage = async function() {
+            const text = document.getElementById('chatInput').value.trim();
+            if(!text) return;
+
+            try {
+                await addDoc(collection(db, "chats", currentUser.uid, "messages"), {
+                    sender: 'user',
+                    email: currentUser.email,
+                    text: text,
+                    timestamp: new Date()
+                });
+                document.getElementById('chatInput').value = "";
+            } catch(e) {
+                alert("Error sending message: " + e.message);
+            }
+        }
+
+        function loadUserMessages(uid) {
+            const q = query(collection(db, "chats", uid, "messages"), orderBy("timestamp", "asc"));
+            onSnapshot(q, (snapshot) => {
+                const box = document.getElementById('chatMessages');
+                box.innerHTML = "";
+                if(snapshot.empty) {
+                    box.innerHTML = `<div class="msg admin">Send your message here, Admin will reply soon.</div>`;
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    let m = doc.data();
+                    let cls = m.sender === 'user' ? 'user' : 'admin';
+                    box.innerHTML += `<div class="msg ${cls}">${m.text}</div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        }
+
+        window.logout = async function() {
             await signOut(auth);
-            window.location.href = 'index.html';
-        });
+            window.location.href = "index.html";
+        }
     </script>
 </body>
 </html>
