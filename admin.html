@@ -24,7 +24,7 @@
 <body>
 
     <div class="container">
-        <h2>👑 Admin Panel (Cloud Database)</h2>
+        <h2>👑 Admin Panel</h2>
         <form id="adminForm">
             <div class="input-group"><input type="text" id="name" placeholder="Product Name" required></div>
             <div class="input-group">
@@ -47,7 +47,7 @@
         </form>
 
         <div class="prod-list">
-            <h3>Manage Cloud Products</h3>
+            <h3>Manage Products</h3>
             <div id="adminProductList">Loading...</div>
         </div>
 
@@ -56,27 +56,37 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDzC-okomVG-pe08RH-JPp0s6NG1BBGIEE",
-            authDomain: "a-one-chat-e3642.firebaseapp.com",
-            projectId: "a-one-chat-e3642",
-            storageBucket: "a-one-chat-e3642.firebasestorage.app",
-            messagingSenderId: "91366490582",
-            appId: "1:91366490582:web:669e8a9bfc54f424a82477"
+            apiKey: "AIzaSyAg24IukX9zNM93Qwqoon-L91kt4Zw513o",
+            authDomain: "efootball-market-9e735.firebaseapp.com",
+            databaseURL: "https://efootball-market-9e735-default-rtdb.firebaseio.com",
+            projectId: "efootball-market-9e735",
+            storageBucket: "efootball-market-9e735.firebasestorage.app",
+            messagingSenderId: "920950277938",
+            appId: "1:920950277938:web:3ec5986057b269ec7bb92b",
+            measurementId: "G-EM7J5JVF10"
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "index.html";
+            }
+        });
 
         const listDiv = document.getElementById('adminProductList');
 
-        // Firestore-ൽ നിന്ന് ലൈവ് ആയി പ്രൊഡക്റ്റുകൾ ലോഡ് ചെയ്യുക
+        // Load Products in Admin Panel
         onSnapshot(collection(db, "products"), (snapshot) => {
             listDiv.innerHTML = "";
             if (snapshot.empty) {
-                listDiv.innerHTML = "<p style='color:#64748b; font-size:14px;'>No products found in cloud.</p>";
+                listDiv.innerHTML = "<p style='color:#64748b; font-size:14px;'>No products found.</p>";
                 return;
             }
 
@@ -92,9 +102,9 @@
             });
         });
 
-        // പ്രൊഡക്റ്റ് ഡിലീറ്റ് ചെയ്യാനുള്ള ഫങ്ഷൻ
+        // Delete Product
         window.deleteCloudProduct = async function(docId) {
-            if (confirm("Are you sure you want to delete this product from cloud?")) {
+            if (confirm("Are you sure you want to delete this product?")) {
                 try {
                     await deleteDoc(doc(db, "products", docId));
                     alert("Product Deleted Successfully!");
@@ -104,7 +114,7 @@
             }
         }
 
-        // പുതിയ പ്രൊഡക്റ്റ് ഫയർസ്റ്റോറിലേക്ക് ആഡ് ചെയ്യുക
+        // Add Product Form Handler
         document.getElementById('adminForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -123,7 +133,7 @@
 
             try {
                 await addDoc(collection(db, "products"), product);
-                alert("Product Added to Cloud Successfully!");
+                alert("Product Added Successfully!");
                 document.getElementById('adminForm').reset();
             } catch (error) {
                 alert("Error adding product: " + error.message);
