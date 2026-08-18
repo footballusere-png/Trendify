@@ -48,19 +48,19 @@
     </header>
 
     <div class="categories">
-        <div class="cat-chip active" onclick="filterCategory('All')">All</div>
-        <div class="cat-chip" onclick="filterCategory('Fashion')">Fashion</div>
-        <div class="cat-chip" onclick="filterCategory('Electronics')">Electronics</div>
-        <div class="cat-chip" onclick="filterCategory('Beauty')">Beauty</div>
-        <div class="cat-chip" onclick="filterCategory('Home & Kitchen')">Home & Kitchen</div>
-        <div class="cat-chip" onclick="filterCategory('Accessories')">Accessories</div>
-        <div class="cat-chip" onclick="filterCategory('Gadgets')">Gadgets</div>
-        <div class="cat-chip" onclick="filterCategory('Trending')">Trending</div>
+        <div class="cat-chip active" onclick="filterCategory('All', event)">All</div>
+        <div class="cat-chip" onclick="filterCategory('Fashion', event)">Fashion</div>
+        <div class="cat-chip" onclick="filterCategory('Electronics', event)">Electronics</div>
+        <div class="cat-chip" onclick="filterCategory('Beauty', event)">Beauty</div>
+        <div class="cat-chip" onclick="filterCategory('Home & Kitchen', event)">Home & Kitchen</div>
+        <div class="cat-chip" onclick="filterCategory('Accessories', event)">Accessories</div>
+        <div class="cat-chip" onclick="filterCategory('Gadgets', event)">Gadgets</div>
+        <div class="cat-chip" onclick="filterCategory('Trending', event)">Trending</div>
     </div>
 
     <div class="container">
         <h2>Top Selling Products</h2>
-        <div class="product-grid" id="productGrid"></div>
+        <div class="product-grid" id="productGrid">Loading products...</div>
     </div>
 
     <script type="module">
@@ -83,25 +83,30 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Check Authentication
+        let allProducts = [];
+
+        // Safe Authentication & Data Loading
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = "index.html";
+            } else {
+                // User is signed in, load products from Firestore
+                loadProductsRealtime();
             }
         });
 
-        let allProducts = [];
-
-        // Real-time Firestore Sync for Products
-        onSnapshot(collection(db, "products"), (snapshot) => {
-            allProducts = [];
-            snapshot.forEach((doc) => {
-                allProducts.push({ id: doc.id, ...doc.data() });
+        function loadProductsRealtime() {
+            onSnapshot(collection(db, "products"), (snapshot) => {
+                allProducts = [];
+                snapshot.forEach((doc) => {
+                    allProducts.push({ id: doc.id, ...doc.data() });
+                });
+                displayProducts(allProducts);
+            }, (error) => {
+                console.error("Error loading products: ", error);
+                document.getElementById('productGrid').innerHTML = "<p style='color:red;'>Error loading products from database.</p>";
             });
-            displayProducts(allProducts);
-        }, (error) => {
-            console.error("Error fetching products: ", error);
-        });
+        }
 
         window.displayProducts = function(productsToDisplay) {
             const grid = document.getElementById('productGrid');
@@ -131,7 +136,7 @@
             });
         }
 
-        window.filterCategory = function(category) {
+        window.filterCategory = function(category, event) {
             document.querySelectorAll('.cat-chip').forEach(chip => chip.classList.remove('active'));
             event.target.classList.add('active');
 
