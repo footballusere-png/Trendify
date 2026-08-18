@@ -32,12 +32,7 @@
         .card-price { font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 8px; }
         .card-desc { font-size: 13px; color: #475569; margin-bottom: 12px; flex: 1; }
         .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
-        .btn-view { background: var(--primary); color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold; }
-        .like-btn { background: none; border: none; font-size: 20px; cursor: pointer; }
-        
-        /* Admin Delete Button Style */
-        .delete-btn { background-color: #ef4444; color: white; border: none; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
-        .delete-btn:hover { background-color: #dc2626; }
+        .btn-view { background: var(--primary); color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold; width: 100%; text-align: center; }
     </style>
 </head>
 <body>
@@ -47,7 +42,7 @@
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="Search products, categories...">
         </div>
-        <div class="nav-icons" id="navIcons">
+        <div class="nav-icons">
             <a href="settings.html">⚙️</a>
         </div>
     </header>
@@ -84,33 +79,12 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        let currentUserEmail = "";
-
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = "index.html";
-            } else {
-                currentUserEmail = user.email;
-                // അഡ്മിൻ ആണെങ്കിൽ ഹെഡറിൽ അഡ്മിൻ പാനൽ ലിങ്ക് കാണിക്കാം (ആവശ്യമെങ്കിൽ)
-                loadProducts();
             }
         });
-
-        window.deleteProduct = function(index) {
-            if (currentUserEmail !== "Trendify@gmail.com") {
-                alert("Unauthorized action!");
-                return;
-            }
-
-            if (confirm("Are you sure you want to delete this product?")) {
-                let products = JSON.parse(localStorage.getItem('trendifyProducts')) || [];
-                products.splice(index, 1);
-                localStorage.setItem('trendifyProducts', JSON.stringify(products));
-                loadProducts();
-            }
-        };
     </script>
-
     <script>
         function loadProducts() {
             let sampleProducts = JSON.parse(localStorage.getItem('trendifyProducts')) || [
@@ -119,7 +93,6 @@
                 { id: 3, name: "Wireless Earbuds", category: "Gadgets", price: "₹699", img: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df", link: "#", description: "Deep bass and long battery life.", rating: "4.3", review_count: 230, top_selling: false }
             ];
 
-            // Save default products if localstorage is empty
             if (!localStorage.getItem('trendifyProducts')) {
                 localStorage.setItem('trendifyProducts', JSON.stringify(sampleProducts));
             }
@@ -131,23 +104,9 @@
             const grid = document.getElementById('productGrid');
             grid.innerHTML = "";
             
-            // Sort to show top selling first
             productsToDisplay.sort((a, b) => (b.top_selling === true) - (a.top_selling === true));
 
-            // Check if current logged-in user from Firebase is admin
-            // (We can check via a global variable or firebase auth state)
-            const isіоAdmin = window.location.href; // handled in script above via currentUserEmail
-
-            productsToDisplay.forEach((prod, index) => {
-                let deleteButtonHtml = "";
-                // അഡ്മിൻ ആണെങ്കിൽ മാത്രം ഡിലീറ്റ് ബട്ടൺ കാണിക്കും
-                // (currentUserEmail ഗ്ലോബൽ വേരിയബിൾ ആയി ഫയർബേസ് സെക്ഷനിൽ സെറ്റ് ചെയ്തിട്ടുണ്ട്)
-                let emailCheck = localStorage.getItem('trendifyAdminCheck') || ""; 
-                
-                // ലളിതമായ പരിശോധനക്കായി ലോക്കൽ സ്റ്റോറേജ് അല്ലെങ്കിൽ ഫയർബേസ് സ്റ്റേറ്റ് ഉപയോഗിക്കാം
-                // ഇവിടെ സുരക്ഷിതമായി അഡ്മിൻ ഇമെയിൽ പരിശോധിക്കുന്നു:
-                deleteButtonHtml = `<button class="delete-btn" onclick="deleteProduct(${index})">🗑️ Remove Product (Admin)</button>`;
-
+            productsToDisplay.forEach((prod) => {
                 grid.innerHTML += `
                     <div class="card">
                         <img src="${prod.img}" alt="${prod.name}">
@@ -159,9 +118,7 @@
                             <div style="font-size:12px; color:#f59e0b; margin-bottom:10px;">⭐ ${prod.rating} (${prod.review_count} reviews)</div>
                             <div class="card-footer">
                                 <a href="${prod.link}" target="_blank" class="btn-view">View Product</a>
-                                <button class="like-btn" onclick="toggleLike(${index})">🤍</button>
                             </div>
-                            ${deleteButtonHtml}
                         </div>
                     </div>
                 `;
