@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trendify - Settings</title>
+    <style>
+        :root { --primary: #ff3366; --bg: #f8fafc; --text: #1e293b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        h2 { color: var(--primary); margin-bottom: 20px; text-align: center; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #f1f5f9; text-decoration: none; color: #334155; font-weight: 500; font-size: 15px; }
+        .menu-item:hover { color: var(--primary); }
+        .btn-logout { background-color: #ef4444; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .btn-logout:hover { background-color: #dc2626; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Settings & Account</h2>
+        <div id="userInfo" style="margin-bottom: 20px; font-weight: bold; color: #64748b;"></div>
+
+        <a href="home.html" class="menu-item">🏠 Back to Home</a>
+        <a href="https://instagram.com" target="_blank" class="menu-item">📸 Contact via Instagram</a>
+        <a href="terms.html" class="menu-item">📄 Terms & Conditions</a>
+        <a href="policy.html" class="menu-item">🔒 Privacy Policy</a>
+
+        <button class="btn-logout" id="logoutBtn">Logout</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzC-okomVG-pe08RH-JPp0s6NG1BBGIEE",
+            authDomain: "a-one-chat-e3642.firebaseapp.com",
+            projectId: "a-one-chat-e3642",
+            storageBucket: "a-one-chat-e3642.firebasestorage.app",
+            messagingSenderId: "91366490582",
+            appId: "1:91366490582:web:669e8a9bfc54f424a82477"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('userInfo').innerText = `Logged in as: ${user.email}`;
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
